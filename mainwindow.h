@@ -36,15 +36,17 @@ private:
         MOVE_DRAW,
         SELECT_DRAW,
         CLIP_DRAW,
-        IMAGE_DRAW,
         DEL_DRAW,
-        COLORPICKER_DRAW
+        COLORPICKER_DRAW,
+        STAMP_DRAW
     } draw_type;
     QPoint startPnt;   //起点
     QPoint endPnt;     //终点
     QImage image, image_temp;
+    QPixmap pixmap_stamp;
     QPen pen;
     QBrush brush;
+    QString path;
     void mousePressEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
@@ -55,6 +57,8 @@ private slots:
     void setLine();
     void setEllipse();
     void setRect();
+    void setStamp();
+    void changeStamp();
     void clear();
     void addPenWidth();
     void reducePenWidth();

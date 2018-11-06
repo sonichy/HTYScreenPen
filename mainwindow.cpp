@@ -5,6 +5,7 @@
 #include <QDesktopWidget>
 #include <QMenu>
 #include <QShortcut>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -32,22 +33,25 @@ MainWindow::MainWindow(QWidget *parent) :
     menu->setAttribute(Qt::WA_TranslucentBackground, true);
     menu->setAutoFillBackground(true);
     QAction *action_brush = new QAction(QIcon(":/icons/brush.png"), "画笔 1", this);
-    //action_brush->setShortcut(QKeySequence(Qt::Key_1));
+    action_brush->setShortcut(QKeySequence(Qt::Key_1));
     QAction *action_line = new QAction(QIcon(":/icons/line.svg"), "直线 2", this);
-    //action_brush->setShortcut(QKeySequence(Qt::Key_2));
+    action_line->setShortcut(QKeySequence(Qt::Key_2));
     QAction *action_ellipse = new QAction(QIcon(":/icons/ellipse.svg"), "椭圆 3", this);
-    //action_brush->setShortcut(QKeySequence(Qt::Key_3));
+    action_ellipse->setShortcut(QKeySequence(Qt::Key_3));
     QAction *action_rect = new QAction(QIcon(":/icons/rect.svg"), "方框 4", this);
-    //action_brush->setShortcut(QKeySequence(Qt::Key_4));
-    QAction *action_clear = new QAction(QIcon(":/icons/trash.svg"), "清屏 5", this);
-    //action_brush->setShortcut(QKeySequence(Qt::Key_5));
+    action_rect->setShortcut(QKeySequence(Qt::Key_4));
+    QAction *action_stamp = new QAction(QIcon(":/icons/image.svg"), "图片 5", this);
+    action_stamp->setShortcut(QKeySequence(Qt::Key_5));
+    QAction *action_change_stamp = new QAction(QIcon(":/icons/image.svg"), "换图 6", this);
+    action_change_stamp->setShortcut(QKeySequence(Qt::Key_6));
     QAction *action_quit = new QAction(QIcon(":/icons/quit.svg"), "退出 Ctrl + Q", this);
-    //action_brush->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
+    action_quit->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
     menu->addAction(action_brush);
     menu->addAction(action_line);
     menu->addAction(action_ellipse);
     menu->addAction(action_rect);
-    menu->addAction(action_clear);
+    menu->addAction(action_stamp);
+    menu->addAction(action_change_stamp);
     menu->addAction(action_quit);
     ui->pushButton_menu->setMenu(menu);
     ui->pushButton_menu->setShortcut(QKeySequence(Qt::Key_M));
@@ -55,14 +59,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(action_line, SIGNAL(triggered()), this, SLOT(setLine()));
     connect(action_ellipse, SIGNAL(triggered()), this, SLOT(setEllipse()));
     connect(action_rect, SIGNAL(triggered()), this, SLOT(setRect()));
-    connect(action_clear, SIGNAL(triggered()), this, SLOT(clear()));
+    connect(action_stamp, SIGNAL(triggered()), this, SLOT(setStamp()));
+    connect(action_change_stamp, SIGNAL(triggered()), this, SLOT(changeStamp()));
     connect(action_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
-    connect(new QShortcut(QKeySequence(Qt::Key_1), this), SIGNAL(activated()), this, SLOT(setBrush()));
-    connect(new QShortcut(QKeySequence(Qt::Key_2), this), SIGNAL(activated()), this, SLOT(setLine()));
-    connect(new QShortcut(QKeySequence(Qt::Key_3), this), SIGNAL(activated()), this, SLOT(setEllipse()));
-    connect(new QShortcut(QKeySequence(Qt::Key_4), this), SIGNAL(activated()), this, SLOT(setRect()));
-    connect(new QShortcut(QKeySequence(Qt::Key_5), this), SIGNAL(activated()), this, SLOT(clear()));
-    connect(new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q), this), SIGNAL(activated()), qApp, SLOT(quit()));
     connect(new QShortcut(QKeySequence(Qt::Key_Plus), this), SIGNAL(activated()), this, SLOT(addPenWidth()));
     connect(new QShortcut(QKeySequence(Qt::Key_Minus), this), SIGNAL(activated()), this, SLOT(reducePenWidth()));
 }
@@ -76,7 +75,15 @@ void MainWindow::mousePressEvent(QMouseEvent *e)
 {
     startPnt = e->pos();
     endPnt = e->pos();
-    if(e->buttons() & Qt::RightButton){
+    if(e->buttons() & Qt::LeftButton){
+        switch(draw_type){
+        case TEXT_DRAW:
+        case ERASE_DRAW:
+        case STAMP_DRAW:
+            draw(image_temp);
+            image = image_temp;
+        }
+    }else if(e->buttons() & Qt::RightButton) {
         clear();
     }
 }
@@ -124,10 +131,10 @@ void MainWindow::draw(QImage &img)
         //if(boolFill){
         //    painter.setBrush(brush);
         //}else{
-            painter.setBrush(QBrush(Qt::transparent,Qt::SolidPattern));
+        painter.setBrush(QBrush(Qt::transparent,Qt::SolidPattern));
         //}
         //if(!boolBorder){
-            pen.setColor(Qt::transparent);
+        pen.setColor(Qt::transparent);
         //}
         QPen pena = pen;
         pena.setWidth(1);
@@ -173,15 +180,8 @@ void MainWindow::draw(QImage &img)
         painter.drawPolygon(points,7);
         break;}
     case RECT_DRAW:{
-        //if(boolFill){
-        //    painter.setBrush(brush);
-        //}else{
         painter.setBrush(QBrush(Qt::transparent, Qt::SolidPattern));
-        //}
         QRect rect(startPnt,endPnt);
-        //if(!boolBorder){
-        //    pen.setColor(Qt::transparent);
-        //}
         painter.drawRect(rect);
         break;}
     case SELECT_DRAW:{
@@ -192,11 +192,7 @@ void MainWindow::draw(QImage &img)
         break;}
     case ELLIPSE_DRAW:{
         QRect rect(startPnt,endPnt);
-        //if(boolFill){
-        //    painter.setBrush(brush);
-        //}else{
-            painter.setBrush(QBrush(Qt::transparent,Qt::SolidPattern));
-        //}
+        painter.setBrush(QBrush(Qt::transparent,Qt::SolidPattern));
         painter.drawEllipse(rect);
         break;}
     case TEXT_DRAW:
@@ -230,11 +226,15 @@ void MainWindow::draw(QImage &img)
         break;
         }
         */
-    case COLORPICKER_DRAW:
+    case COLORPICKER_DRAW:{
         QRgb RGB = image_temp.pixel(startPnt.x(),startPnt.y());
         pen.setColor(RGB);
         brush.setColor(RGB);
         painter.setBrush(brush);
+        break;}
+    case STAMP_DRAW:
+        painter.drawPixmap(startPnt, pixmap_stamp);
+        break;
     }
     update();
 }
@@ -263,6 +263,28 @@ void MainWindow::setRect()
     draw_type = RECT_DRAW;
 }
 
+void MainWindow::setStamp()
+{
+    if (pixmap_stamp.isNull()) {
+        changeStamp();
+        setCursor(QCursor(pixmap_stamp, 0, 0));
+        draw_type = STAMP_DRAW;
+    }else {
+        setCursor(QCursor(pixmap_stamp, 0, 0));
+        draw_type = STAMP_DRAW;
+    }
+}
+
+void MainWindow::changeStamp()
+{
+    if(path == "") path = ".";
+    path = QFileDialog::getOpenFileName(this,"打开图片", path, "图片文件(*.jpg *.jpeg *.png *.bmp *.svg *.gif)");
+    if(path.length() != 0){
+        pixmap_stamp.load(path);
+        setStamp();
+    }
+}
+
 void MainWindow::clear()
 {
     image_temp = QImage(QApplication::desktop()->width(), QApplication::desktop()->height(), QImage::Format_ARGB32);
@@ -272,7 +294,7 @@ void MainWindow::clear()
 
 void MainWindow::addPenWidth()
 {
-    if(pen.width()<10);
+    if(pen.width()<15)
         pen.setWidth(pen.width() + 1);
 }
 

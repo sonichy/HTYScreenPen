@@ -1,0 +1,7 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="32" height="32" version="1.1" xmlns="http://www.w3.org/2000/svg">
+<rect x="3" y="8" width="26" height="18" stroke="#FFFFFF" stroke-width="1" fill="none"/>
+<circle cx="24" cy="12" r="2" stroke="#FFFFFF" stroke-width="1" fill="none" />
+<path d="M3,23 l7,-8 l5,5 l4,-4 l10,7" stroke="#ffffff" fill="none" />
+</svg>
