@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=海天鹰涂鸦
-Comment=简单的屏幕涂鸦程序
-Exec=/media/sonichy/job/HY/Linux/Qt/HTYScreenPen/HTYScreenPen
-Icon=/media/sonichy/job/HY/Linux/Qt/HTYScreenPen/icons/icon.png
-Path=/media/sonichy/job/HY/Linux/Qt/HTYScreenPen
-Terminal=false
-Type=Application
-Categories=Graphics;
