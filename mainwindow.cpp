@@ -6,6 +6,8 @@
 #include <QMenu>
 #include <QShortcut>
 #include <QFileDialog>
+#include <QColorDialog>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -44,6 +46,8 @@ MainWindow::MainWindow(QWidget *parent) :
     action_stamp->setShortcut(QKeySequence(Qt::Key_5));
     QAction *action_change_stamp = new QAction(QIcon(":/icons/image.svg"), "换图 6", this);
     action_change_stamp->setShortcut(QKeySequence(Qt::Key_6));
+    QAction *action_change_color = new QAction(QIcon(":/icons/color.svg"), "换色 7", this);
+    action_change_color->setShortcut(QKeySequence(Qt::Key_7));
     QAction *action_quit = new QAction(QIcon(":/icons/quit.svg"), "退出 Ctrl + Q", this);
     action_quit->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
     menu->addAction(action_brush);
@@ -52,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent) :
     menu->addAction(action_rect);
     menu->addAction(action_stamp);
     menu->addAction(action_change_stamp);
+    menu->addAction(action_change_color);
     menu->addAction(action_quit);
     ui->pushButton_menu->setMenu(menu);
     ui->pushButton_menu->setShortcut(QKeySequence(Qt::Key_M));
@@ -61,8 +66,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(action_rect, SIGNAL(triggered()), this, SLOT(setRect()));
     connect(action_stamp, SIGNAL(triggered()), this, SLOT(setStamp()));
     connect(action_change_stamp, SIGNAL(triggered()), this, SLOT(changeStamp()));
+    connect(action_change_color, SIGNAL(triggered()), this, SLOT(changeColor()));
     connect(action_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
     connect(new QShortcut(QKeySequence(Qt::Key_Plus), this), SIGNAL(activated()), this, SLOT(addPenWidth()));
+    connect(new QShortcut(QKeySequence(Qt::Key_Equal), this), SIGNAL(activated()), this, SLOT(addPenWidth()));
     connect(new QShortcut(QKeySequence(Qt::Key_Minus), this), SIGNAL(activated()), this, SLOT(reducePenWidth()));
 }
 
@@ -267,8 +274,6 @@ void MainWindow::setStamp()
 {
     if (pixmap_stamp.isNull()) {
         changeStamp();
-        setCursor(QCursor(pixmap_stamp, 0, 0));
-        draw_type = STAMP_DRAW;
     }else {
         setCursor(QCursor(pixmap_stamp, 0, 0));
         draw_type = STAMP_DRAW;
@@ -279,10 +284,17 @@ void MainWindow::changeStamp()
 {
     if(path == "") path = ".";
     path = QFileDialog::getOpenFileName(this,"打开图片", path, "图片文件(*.jpg *.jpeg *.png *.bmp *.svg *.gif)");
+    qDebug() << path;
     if(path.length() != 0){
         pixmap_stamp.load(path);
         setStamp();
     }
+}
+
+void MainWindow::changeColor()
+{
+    color = QColorDialog::getColor(color, this);
+    if (color.isValid()) pen.setColor(color);
 }
 
 void MainWindow::clear()

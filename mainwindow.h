@@ -46,6 +46,7 @@ private:
     QPixmap pixmap_stamp;
     QPen pen;
     QBrush brush;
+    QColor color;
     QString path;
     void mousePressEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
@@ -59,6 +60,7 @@ private slots:
     void setRect();
     void setStamp();
     void changeStamp();
+    void changeColor();
     void clear();
     void addPenWidth();
     void reducePenWidth();

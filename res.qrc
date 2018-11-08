@@ -8,5 +8,6 @@
         <file>icons/quit.svg</file>
         <file>icons/ellipse.svg</file>
         <file>icons/image.svg</file>
+        <file>icons/color.svg</file>
     </qresource>
 </RCC>
