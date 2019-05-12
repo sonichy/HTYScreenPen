@@ -52,6 +52,7 @@ private:
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
     void draw(QImage &img);
+    void drawCursor();
 
 private slots:
     void setBrush();

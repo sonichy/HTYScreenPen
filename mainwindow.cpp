@@ -21,14 +21,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->pushButton_menu->setCursor(Qt::PointingHandCursor);
     ui->pushButton_menu->move(QApplication::desktop()->width() - ui->pushButton_menu->width() - 20, QApplication::desktop()->height() - 2.5 * ui->pushButton_menu->height());
 
-    setBrush();
     clear();
     pen.setColor(Qt::red);
     pen.setWidth(5);
     pen.setCapStyle(Qt::RoundCap);
     pen.setJoinStyle(Qt::RoundJoin);
     brush = QBrush(Qt::transparent, Qt::SolidPattern);
-    brush.setColor(Qt::red);
+    //brush.setColor(Qt::red);
+    setBrush();
 
     QMenu *menu = new QMenu;
     menu->setStyleSheet("color:rgb(255,255,255); background:rgba(0,0,0,100);");
@@ -48,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
     action_change_stamp->setShortcut(QKeySequence(Qt::Key_6));
     QAction *action_change_color = new QAction(QIcon(":/icons/color.svg"), "换色 7", this);
     action_change_color->setShortcut(QKeySequence(Qt::Key_7));
-    QAction *action_quit = new QAction(QIcon(":/icons/quit.svg"), "退出 Ctrl + Q", this);
+    QAction *action_quit = new QAction(QIcon::fromTheme("application-exit"), "退出 Ctrl + Q", this);
     action_quit->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
     menu->addAction(action_brush);
     menu->addAction(action_line);
@@ -249,25 +249,25 @@ void MainWindow::draw(QImage &img)
 void MainWindow::setBrush()
 {
     draw_type = BRUSH_DRAW;
-    setCursor(QCursor(QPixmap(":/icons/brush.png")));
+    drawCursor();
 }
 
 void MainWindow::setLine()
 {
-    setCursor(QCursor(QPixmap(":/icons/line.svg")));
     draw_type = LINE_DRAW;
+    drawCursor();
 }
 
 void MainWindow::setEllipse()
 {
-    setCursor(QCursor(QPixmap(":/icons/ellipse.svg")));
     draw_type = ELLIPSE_DRAW;
+    drawCursor();
 }
 
 void MainWindow::setRect()
 {
-    setCursor(QCursor(QPixmap(":/icons/rect.svg")));
     draw_type = RECT_DRAW;
+    drawCursor();
 }
 
 void MainWindow::setStamp()
@@ -275,7 +275,10 @@ void MainWindow::setStamp()
     if (pixmap_stamp.isNull()) {
         changeStamp();
     }else {
-        setCursor(QCursor(pixmap_stamp, 0, 0));
+        QPixmap pixmap_cursor;
+        if(pixmap_stamp.width()>100 || pixmap_stamp.height()>100)
+            pixmap_cursor = pixmap_stamp.scaled(100,100,Qt::KeepAspectRatio,Qt::SmoothTransformation);
+        setCursor(QCursor(pixmap_cursor, 0, 0));
         draw_type = STAMP_DRAW;
     }
 }
@@ -294,24 +297,63 @@ void MainWindow::changeStamp()
 void MainWindow::changeColor()
 {
     color = QColorDialog::getColor(color, this);
-    if (color.isValid()) pen.setColor(color);
+    if (color.isValid()) {
+        pen.setColor(color);
+        drawCursor();
+    }
 }
 
 void MainWindow::clear()
 {
     image_temp = QImage(QApplication::desktop()->width(), QApplication::desktop()->height(), QImage::Format_ARGB32);
     image_temp.fill(Qt::transparent);
+    image = image_temp;
     update();
 }
 
 void MainWindow::addPenWidth()
 {
-    if(pen.width()<15)
+    if (pen.width() < 15) {
         pen.setWidth(pen.width() + 1);
+        if (draw_type != BRUSH_DRAW) drawCursor();
+    }
 }
 
 void MainWindow::reducePenWidth()
 {
-    if(pen.width()>1)
+    if (pen.width() > 1) {
         pen.setWidth(pen.width() - 1);
+        if (draw_type != BRUSH_DRAW) drawCursor();
+    }
+}
+
+void MainWindow::drawCursor()
+{
+    QPixmap pixmap(32,32);
+    pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setPen(pen);
+    switch(draw_type){
+    case BRUSH_DRAW:{
+        painter.drawPixmap(0,0,QPixmap(":/icons/brush.png"));
+        QPen penc(pen.color());
+        painter.setPen(penc);
+        painter.setBrush(QBrush(pen.color()));
+        int d = 3;
+        QPolygon polygon;
+        polygon << QPoint(0, pixmap.height() - d) << QPoint(d + 1, pixmap.height() - 2*d - 1) << QPoint(2*d + 1, pixmap.height() - d - 1) << QPoint(d, pixmap.height());
+        painter.drawPolygon(polygon);
+        break;}
+    case LINE_DRAW:
+        painter.drawLine(32,0,0,32);
+        break;
+    case RECT_DRAW:
+        painter.drawRect(2,8,28,20);
+        break;
+    case ELLIPSE_DRAW:
+        painter.drawEllipse(2,2,27,16);
+        break;
+    }
+    setCursor(QCursor(pixmap, 0, pixmap.height()));
 }
