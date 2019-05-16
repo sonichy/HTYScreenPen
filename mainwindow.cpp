@@ -34,21 +34,21 @@ MainWindow::MainWindow(QWidget *parent) :
     menu->setStyleSheet("color:rgb(255,255,255); background:rgba(0,0,0,100);");
     menu->setAttribute(Qt::WA_TranslucentBackground, true);
     menu->setAutoFillBackground(true);
-    QAction *action_brush = new QAction(QIcon(":/icons/brush.png"), "画笔 1", this);
+    QAction *action_brush = new QAction(QIcon(":/icons/brush.png"), "画笔", this);
     action_brush->setShortcut(QKeySequence(Qt::Key_1));
-    QAction *action_line = new QAction(QIcon(":/icons/line.svg"), "直线 2", this);
+    QAction *action_line = new QAction(QIcon(":/icons/line.svg"), "直线", this);
     action_line->setShortcut(QKeySequence(Qt::Key_2));
-    QAction *action_ellipse = new QAction(QIcon(":/icons/ellipse.svg"), "椭圆 3", this);
+    QAction *action_ellipse = new QAction(QIcon(":/icons/ellipse.svg"), "椭圆", this);
     action_ellipse->setShortcut(QKeySequence(Qt::Key_3));
-    QAction *action_rect = new QAction(QIcon(":/icons/rect.svg"), "方框 4", this);
+    QAction *action_rect = new QAction(QIcon(":/icons/rect.svg"), "方框", this);
     action_rect->setShortcut(QKeySequence(Qt::Key_4));
-    QAction *action_stamp = new QAction(QIcon(":/icons/image.svg"), "图片 5", this);
+    QAction *action_stamp = new QAction(QIcon(":/icons/image.svg"), "图片", this);
     action_stamp->setShortcut(QKeySequence(Qt::Key_5));
-    QAction *action_change_stamp = new QAction(QIcon(":/icons/image.svg"), "换图 6", this);
+    QAction *action_change_stamp = new QAction(QIcon(":/icons/image.svg"), "换图", this);
     action_change_stamp->setShortcut(QKeySequence(Qt::Key_6));
-    QAction *action_change_color = new QAction(QIcon(":/icons/color.svg"), "换色 7", this);
+    QAction *action_change_color = new QAction(QIcon(":/icons/color.svg"), "换色", this);
     action_change_color->setShortcut(QKeySequence(Qt::Key_7));
-    QAction *action_quit = new QAction(QIcon::fromTheme("application-exit"), "退出 Ctrl + Q", this);
+    QAction *action_quit = new QAction(QIcon::fromTheme("application-exit"), "退出", this);
     action_quit->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
     menu->addAction(action_brush);
     menu->addAction(action_line);
@@ -58,6 +58,11 @@ MainWindow::MainWindow(QWidget *parent) :
     menu->addAction(action_change_stamp);
     menu->addAction(action_change_color);
     menu->addAction(action_quit);
+
+    foreach(QAction *action, menu->actions()){
+        action->setShortcutVisibleInContextMenu(true);
+    }
+
     ui->pushButton_menu->setMenu(menu);
     ui->pushButton_menu->setShortcut(QKeySequence(Qt::Key_M));
     connect(action_brush, SIGNAL(triggered()), this, SLOT(setBrush()));
