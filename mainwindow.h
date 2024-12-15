@@ -51,6 +51,7 @@ private:
     void mousePressEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
+    void resizeEvent(QResizeEvent *e);
     void draw(QImage &img);
     void drawCursor();
 

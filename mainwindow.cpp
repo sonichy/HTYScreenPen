@@ -19,7 +19,8 @@ MainWindow::MainWindow(QWidget *parent) :
     setAttribute(Qt::WA_TranslucentBackground, true);
     showMaximized();
     ui->pushButton_menu->setCursor(Qt::PointingHandCursor);
-    ui->pushButton_menu->move(QApplication::desktop()->width() - ui->pushButton_menu->width() - 20, QApplication::desktop()->height() - 2.5 * ui->pushButton_menu->height());
+    //ui->pushButton_menu->move(QApplication::desktop()->width() - ui->pushButton_menu->width() - 20, QApplication::desktop()->height() - 2.5 * ui->pushButton_menu->height());
+    ui->pushButton_menu->move(this->width() - ui->pushButton_menu->width() - 20, this->height() - ui->pushButton_menu->height() - 20);
 
     clear();
     pen.setColor(Qt::red);
@@ -81,6 +82,13 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::resizeEvent(QResizeEvent *e)
+{
+    QMainWindow::resizeEvent(e);
+    // 在调整窗口大小后重新调整右下角按钮位置
+    ui->pushButton_menu->move(this->width() - ui->pushButton_menu->width() - 20, this->height() - ui->pushButton_menu->height() - 20);
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *e)
